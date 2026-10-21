@@ -41,9 +41,11 @@ a{color:inherit}
 :focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
 
 /* ---------- background tape: poster shows instantly, the tiny loop fades in later ---------- */
-.bg{position:fixed;inset:0;z-index:0;background:#000 url("/print/bg-v.jpg") center/cover no-repeat}
-@media (min-aspect-ratio: 1/1){ .bg{background-image:url("/print/bg-h.jpg")} }
-.bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:#000}
+.bg .pst,.bg video{position:absolute;left:0;width:100%;top:-17%;height:117%}
+.bg .pst{background:url("/print/bg-v.jpg") center/cover no-repeat}
+.bg video{object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+@media (min-aspect-ratio: 1/1){ .bg .pst,.bg video{top:0;height:100%} .bg .pst{background-image:url("/print/bg-h.jpg")} }
 .bg video.on{opacity:1}
 .fx{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .shade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.2) 15%,rgba(0,0,0,.3) 32%,rgba(0,0,0,.8) 50%,rgba(0,0,0,.94) 68%,#000 85%)}
@@ -71,7 +73,7 @@ a{color:inherit}
 
 .card{display:flex;flex-direction:column;gap:clamp(10px,1.7svh,16px);margin-bottom:clamp(8px,5svh,52px)}
 h1{margin:0;font-size:clamp(28px,min(8.8vw,5.1svh),46px);font-weight:650;font-stretch:112%;line-height:1.04;letter-spacing:-.015em;text-wrap:balance}
-.about{margin:0;font-size:clamp(15px,min(4.3vw,2.35svh),18px);line-height:1.4;color:var(--ash)}
+.about{margin:0;font-size:clamp(15px,min(4.4vw,2.4svh),18px);line-height:1.4;color:color-mix(in srgb,var(--ivory) 78%,transparent)}
 .about b{font-weight:500;color:var(--ivory)}
 
 .btn{
@@ -97,7 +99,7 @@ h1{margin:0;font-size:clamp(28px,min(8.8vw,5.1svh),46px);font-weight:650;font-st
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"><video muted loop playsinline preload="none"></video></div>
+<div class="bg" aria-hidden="true"><div class="pst"></div><video muted loop playsinline preload="none"></video></div>
 <div class="fx" aria-hidden="true"><div class="shade"></div><div class="grain"></div><div class="scan"></div><div class="roll"></div></div>
 <main class="wrap">
   <header class="top" aria-hidden="true">
@@ -107,7 +109,7 @@ h1{margin:0;font-size:clamp(28px,min(8.8vw,5.1svh),46px);font-weight:650;font-st
   <div class="hero"><span class="mark" role="img" aria-label="headache"></span></div>
   <section class="card">
     <h1>Привіт! Це я друкував тобі фото</h1>
-    <p class="about">Я Макс, оператор з Києва, знімаю на VHS. <b>Шукай себе в TikTok, я викладаю відео зі зйомок.</b></p>
+    <p class="about">Я Макс, оператор з Києва, знімаю на VHS.</p>
     <a class="btn main" href="https://www.tiktok.com/@vhs.kyiv" target="_blank" rel="noopener">
       <span class="lab"><small>TikTok</small><b>@vhs.kyiv</b></span><span class="arr" aria-hidden="true">►</span>
     </a>
