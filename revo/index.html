@@ -77,7 +77,7 @@ button{font:inherit;color:inherit}
 .idle .bar,.player:not(.started) .bar{opacity:0;transform:translateY(8px);pointer-events:none}
 .player:not(.started) .osd-r{opacity:0}
 .idle .osd{opacity:0}
-.idle{cursor:none}
+.idle.is-playing{cursor:none}
 .track{position:relative;height:22px;display:flex;align-items:center;cursor:pointer;touch-action:none;margin:0 2px 6px}
 .track span{position:relative;display:block;width:100%;height:3px;background:color-mix(in srgb,var(--ivory) 25%,transparent)}
 .track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--ivory);box-shadow:0 0 6px color-mix(in srgb,var(--ivory) 70%,transparent)}
@@ -107,7 +107,7 @@ button{font:inherit;color:inherit}
 }
 .vol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:2px;height:11px;background:transparent}
 .vol::-moz-range-thumb{width:2px;height:11px;border:0;background:transparent}
-.vol[hidden],.vlab[hidden]{display:none}
+.vol[hidden],.vlab[hidden],.vcr[hidden]{display:none}
 .time{margin-left:auto;padding:0 6px;font-size:12px;font-weight:600;letter-spacing:.06em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .time small{font-size:10px;margin-right:6px;opacity:.85}
 
@@ -195,7 +195,7 @@ button{font:inherit;color:inherit}
 
   /* phones: volume comes from the side buttons, so the slider is only for computers */
   const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
-  if (touch){ vol.hidden = true; vlab.hidden = true; }
+  if (touch){ vol.hidden = true; vlab.hidden = true; btn('hide').hidden = true; }
 
   let idleTimer = 0;
   const fmt = s => { if (!isFinite(s)) s = 0; s = Math.floor(s); return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
@@ -225,7 +225,16 @@ button{font:inherit;color:inherit}
   /* the bar hides itself while the video plays; any touch brings it back */
   const hide = () => { clearTimeout(idleTimer); if (!v.paused) P.classList.add('idle'); };
   const wake = () => { P.classList.remove('idle'); clearTimeout(idleTimer); idleTimer = setTimeout(hide, 3000); };
+  const hideNow = () => { if (!P.classList.contains('started')) return; clearTimeout(idleTimer); P.classList.add('idle'); };
   P.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') wake(); });
+  P.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') wake(); });
+  P.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !document.fullscreenElement && !document.webkitFullscreenElement) hideNow(); });
+  /* phone: tap on empty space around the video hides the controls */
+  document.addEventListener('click', e => {
+    if (!touch) return;
+    if (P.contains(e.target) || e.target.closest('a,button,input')) return;
+    hideNow();
+  });
   v.addEventListener('play', wake);
   let tapStartedHidden = false;
   P.addEventListener('pointerdown', () => { tapStartedHidden = P.classList.contains('idle'); }, true);
