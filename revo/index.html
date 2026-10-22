@@ -34,10 +34,29 @@ button{font:inherit;color:inherit}
 
 /* ---------- player ---------- */
 .player{
-  position:relative;flex:none;width:min(100%,1100px,calc((100svh - 300px) * 4 / 3));aspect-ratio:4/3;
+  position:relative;flex:none;width:min(100%,1100px,calc((100svh - 370px) * 4 / 3));aspect-ratio:4/3;
   background:#000;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;
   opacity:0;transform:scale(.98);animation:in 1s .2s var(--ease) forwards;
 }
+.player[data-tape="2"]{width:min(100%,1100px,calc((100svh - 370px) * 1.85));aspect-ratio:1998/1080}
+.deck{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.tapes{display:flex;gap:10px;width:min(100% - 32px,560px);opacity:0;animation:fade .9s .4s var(--ease) forwards}
+.tape{
+  appearance:none;cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:3px;
+  background:rgba(255,255,255,.03);color:var(--ivory);border:1px solid color-mix(in srgb,var(--ivory) 32%,transparent);text-align:left;
+  transition:background-color .2s,color .2s,border-color .2s;
+}
+.tape:hover{border-color:var(--ivory)}
+.tape[aria-selected="true"]{background:var(--ivory);color:#000;border-color:var(--ivory);text-shadow:none}
+.reels{flex:none;display:flex;gap:4px}
+.reels i{width:11px;height:11px;border-radius:50%;border:2px solid currentColor;position:relative}
+.reels i::after{content:"";position:absolute;inset:2px;border-radius:50%;background:currentColor;opacity:.35}
+.tape[aria-selected="true"] .reels i{animation:spin 2.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.t-txt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.t-n{font-size:10px;font-weight:600;letter-spacing:.14em;opacity:.7}
+.t-name{font-size:13px;font-weight:700;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-dur{margin-left:auto;font-size:11px;font-weight:600;opacity:.75;font-variant-numeric:tabular-nums}
 .player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;display:block}
 .player video::-webkit-media-controls{display:none !important}
 
@@ -122,8 +141,10 @@ button{font:inherit;color:inherit}
 /* phone turned sideways: the video takes the whole screen */
 @media (orientation: landscape) and (max-height: 520px){
   .page{padding:0;justify-content:center}
-  .rlogo,.next{display:none}
+  .rlogo,.next,.tapes{display:none}
+  .deck{height:100%;justify-content:center}
   .player{width:min(100%,calc(100svh * 4 / 3));height:100%;aspect-ratio:auto}
+  .player[data-tape="2"]{width:min(100%,calc(100svh * 1.85))}
 }
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
@@ -135,10 +156,11 @@ button{font:inherit;color:inherit}
 <main class="page">
   <span class="rlogo" role="img" aria-label="REVO × RTF"></span>
 
-  <div class="player" id="player">
+  <div class="deck">
+  <div class="player" id="player" data-tape="1">
     <video id="v" src="/revo/revo.mp4" poster="/revo/revo.jpg" playsinline webkit-playsinline preload="metadata" loop></video>
     <span class="osd glow" id="osd">STOP ■</span>
-    <span class="osd osd-r glow">SP</span>
+    <span class="osd osd-r glow" id="osdr">TAPE 1</span>
     <button class="big glow" id="big" type="button" aria-label="Відтворити">► PLAY</button>
     <div class="bar">
       <div class="track" id="track" role="slider" aria-label="Перемотка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span><i id="fill"></i></span><b id="head"></b></div>
@@ -156,8 +178,14 @@ button{font:inherit;color:inherit}
     </div>
   </div>
 
+  <div class="tapes" role="tablist" aria-label="Касети">
+    <button class="tape glow" type="button" role="tab" data-tape="1" aria-selected="true"><span class="reels" aria-hidden="true"><i></i><i></i></span><span class="t-txt"><span class="t-n">TAPE 01 · 0:30</span><span class="t-name">REVO × RTF</span></span></button>
+    <button class="tape glow" type="button" role="tab" data-tape="2" aria-selected="false"><span class="reels" aria-hidden="true"><i></i><i></i></span><span class="t-txt"><span class="t-n">TAPE 02 · 0:27</span><span class="t-name">BACKSTAGE</span></span></button>
+  </div>
+  </div>
+
   <a class="next glow" href="/">
-    <small>NEXT TAPE</small>
+    <small>⏏ EJECT</small>
     <b>ДО САЙТУ HEADACHE.KYIV.UA <i>►</i></b>
   </a>
 </main>
@@ -245,6 +273,23 @@ button{font:inherit;color:inherit}
   const onFs = () => { P.classList.toggle('is-full', !!(document.fullscreenElement || document.webkitFullscreenElement)); };
   document.addEventListener('fullscreenchange', onFs); document.addEventListener('webkitfullscreenchange', onFs);
   addEventListener('keydown', e => { if (e.code === 'Space' && e.target === document.body){ e.preventDefault(); toggle(); wake(); } });
+  /* two tapes in one deck: the video and its backstage */
+  const TAPES = {
+    1: { src: '/revo/revo.mp4', poster: '/revo/revo.jpg', label: 'TAPE 1' },
+    2: { src: '/revo/backstage.mp4', poster: '/revo/backstage.jpg', label: 'TAPE 2' }
+  };
+  const osdr = document.getElementById('osdr');
+  const tapeBtns = [...document.querySelectorAll('.tape')];
+  tapeBtns.forEach(b => b.addEventListener('click', () => {
+    const n = b.dataset.tape;
+    if (P.dataset.tape === n) return;
+    tapeBtns.forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    P.dataset.tape = n; osdr.textContent = TAPES[n].label;
+    v.pause(); v.poster = TAPES[n].poster; v.src = TAPES[n].src; v.load();
+    v.muted = false; P.classList.add('started');
+    v.play().catch(() => {}); wake();
+  }));
+
   sync(); progress();
 })();
 </script>
