@@ -138,8 +138,10 @@ img{display:block;max-width:100%}
 .lb-stage{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:pan-y}
 .lb-track{display:flex;height:100%;transition:transform .45s var(--ease);will-change:transform}
 .lb-track.drag{transition:none}
-.lb-slide{flex:0 0 100%;height:100%;display:grid;place-items:center;padding:0 clamp(0px,5vw,84px)}
-.lb-slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none;opacity:0;transition:opacity .35s}
+.lb-slide{flex:0 0 100%;height:100%;padding:0 clamp(0px,5vw,84px)}
+.lb-slide .fit{position:relative;width:100%;height:100%}
+.lb-slide{position:relative}
+.lb-slide img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:contain;user-select:none;-webkit-user-drag:none;opacity:0;transition:opacity .35s}
 .lb-slide img.in{opacity:1}
 .lb-arrow{position:absolute;z-index:3;top:50%;margin-top:-23px;width:46px;height:46px;padding:0}
 .lb-arrow.prev{left:clamp(8px,1.6vw,22px)}.lb-arrow.next{right:clamp(8px,1.6vw,22px)}
@@ -226,7 +228,7 @@ img{display:block;max-width:100%}
 
 <footer class="foot">
   <div class="duo" aria-label="headache × REVŌ"><span class="mark"></span><span class="x">×</span><span class="star"></span></div>
-  <p>Фото: headache production. Можна завантажувати в оригіналі, позначте @okayzex, якщо викладаєте.</p>
+  <p>Фото: headache production.</p>
   <div class="foot-links">
     <a class="vcr" href="/revo">► Відео REVO × RTF</a>
     <a class="vcr" href="https://t.me/vhskyiv" target="_blank" rel="noopener">Telegram</a>
@@ -297,7 +299,7 @@ img{display:block;max-width:100%}
   /* ---------- viewer ---------- */
   const lb = document.getElementById('lb'), track = document.getElementById('lbTrack'), stage = document.getElementById('lbStage');
   const elCur = document.getElementById('lbCur'), elMeta = document.getElementById('lbMeta'), elDl = document.getElementById('lbDl'), elOsd = document.getElementById('lbOsd'), prog = document.getElementById('lbProg');
-  track.innerHTML = PHOTOS.map((p, i) => `<div class="lb-slide" data-i="${i}"><img alt="Фото ${i + 1} з ${PHOTOS.length}" data-src="/revo/part-1/photos/lg/${p.file}" width="${p.lg[0]}" height="${p.lg[1]}" draggable="false"></div>`).join('');
+  track.innerHTML = PHOTOS.map((p, i) => `<div class="lb-slide" data-i="${i}"><div class="fit"><img alt="Фото ${i + 1} з ${PHOTOS.length}" data-src="/revo/part-1/photos/lg/${p.file}" width="${p.lg[0]}" height="${p.lg[1]}" draggable="false"></div></div>`).join('');
   const slides = [...track.children];
   let idx = 0, isOpen = false, playing = false, playT = 0, lastFocus = null;
   const SLIDE_MS = 3600;
@@ -372,7 +374,7 @@ img{display:block;max-width:100%}
     else if (e.key === ' ') { e.preventDefault(); setPlay(!playing); }
   });
   /* tap the black around the photo to close */
-  stage.addEventListener('click', e => { if (e.target.classList.contains('lb-slide')) close(); });
+  stage.addEventListener('click', e => { if (e.target.classList.contains('lb-slide') || e.target.classList.contains('fit')) close(); });
 
   /* swipe */
   let sx = 0, sy = 0, dx = 0, swiping = false, lock = null;
