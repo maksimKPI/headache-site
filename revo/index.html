@@ -52,6 +52,11 @@ button{font:inherit;color:inherit}
 .t-n{font-size:10px;font-weight:600;letter-spacing:.16em;opacity:.65}
 .t-name{font-size:12px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
 .tape[aria-selected="true"] .t-name::before{content:"► ";font-size:9px;vertical-align:1px}
+.tablist{display:flex;gap:10px}
+.tape-link{text-decoration:none;opacity:1;border-color:color-mix(in srgb,var(--ivory) 45%,transparent);transition:background-color .2s,color .2s,border-color .2s}
+.tape-link .t-name i{font-style:normal;font-size:9px;vertical-align:1px;opacity:.75}
+.tape-link:hover,.tape-link:focus-visible{opacity:1;background:var(--ivory);color:#000;border-color:var(--ivory);text-shadow:none}
+@media (max-width:440px){.tapes,.tablist{gap:6px}.tape{min-width:0;padding:8px 10px 9px}.t-name{font-size:11px;letter-spacing:.06em}.t-n{font-size:9px;letter-spacing:.12em}}
 .player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;display:block}
 .player video::-webkit-media-controls{display:none !important}
 
@@ -173,9 +178,12 @@ button{font:inherit;color:inherit}
     </div>
   </div>
 
-  <div class="tapes" role="tablist" aria-label="Касети">
-    <button class="tape" type="button" role="tab" data-tape="1" aria-selected="true"><span class="t-n">TAPE 01</span><span class="t-name">REVO × RTF</span></button>
-    <button class="tape" type="button" role="tab" data-tape="2" aria-selected="false"><span class="t-n">TAPE 02</span><span class="t-name">BACKSTAGE</span></button>
+  <div class="tapes">
+    <div class="tablist" role="tablist" aria-label="Касети">
+      <button class="tape" type="button" role="tab" data-tape="1" aria-selected="true"><span class="t-n">TAPE 01</span><span class="t-name">REVO × RTF</span></button>
+      <button class="tape" type="button" role="tab" data-tape="2" aria-selected="false"><span class="t-n">TAPE 02</span><span class="t-name">BACKSTAGE</span></button>
+    </div>
+    <a class="tape tape-link" href="/revo/photos/"><span class="t-n">PHOTO · 16</span><span class="t-name">REVO SKATE <i>►</i></span></a>
   </div>
   </div>
 
@@ -283,7 +291,7 @@ button{font:inherit;color:inherit}
     2: { src: '/revo/backstage.mp4', poster: '/revo/backstage.jpg', label: 'TAPE 2' }
   };
   const osdr = document.getElementById('osdr');
-  const tapeBtns = [...document.querySelectorAll('.tape')];
+  const tapeBtns = [...document.querySelectorAll('.tape[data-tape]')];
   tapeBtns.forEach(b => b.addEventListener('click', () => {
     const n = b.dataset.tape;
     if (P.dataset.tape === n) return;
